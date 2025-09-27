@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from './ui/alert';
 const EmissionsCalculator = () => {
   const [vehicleType, setVehicleType] = useState('ev');
   const [distance, setDistance] = useState('');
-  const [batteryCapacity, setBatteryCapacity] = useState('');
+  const [energyConsumption, setEnergyConsumption] = useState('');
   const [chargingEfficiency, setChargingEfficiency] = useState('');
   const [fuelEfficiency, setFuelEfficiency] = useState('');
   const [result, setResult] = useState(null);
@@ -23,8 +23,8 @@ const EmissionsCalculator = () => {
     }
 
     if (vehicleType === 'ev') {
-      if (!batteryCapacity || isNaN(batteryCapacity) || Number(batteryCapacity) <= 0) {
-        newErrors.batteryCapacity = 'Please enter a valid battery capacity';
+      if (!energyConsumption || isNaN(energyConsumption) || Number(energyConsumption) <= 0) {
+        newErrors.energyConsumption = 'Please enter a valid energy consumption';
       }
       if (!chargingEfficiency || isNaN(chargingEfficiency) || 
           Number(chargingEfficiency) <= 0 || Number(chargingEfficiency) > 100) {
@@ -46,8 +46,11 @@ const EmissionsCalculator = () => {
     let emissions = 0;
     
     if (vehicleType === 'ev') {
-      const totalEnergy = Number(distance) * (Number(batteryCapacity) / 100);
-      const energyWithLosses = totalEnergy / (Number(chargingEfficiency) / 100);
+      // New formula: (Distance × Energy Consumption × (1 / Charging Efficiency)) × Grid Factor
+      const dist = Number(distance);
+      const ec = Number(energyConsumption);
+      const eff = Number(chargingEfficiency);
+      const energyWithLosses = dist * ec * (1 / (eff / 100));
       emissions = energyWithLosses * GRID_EMISSION_FACTOR;
     } else {
       const fuelConsumed = Number(distance) / Number(fuelEfficiency);
@@ -115,19 +118,19 @@ const EmissionsCalculator = () => {
               <>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Battery Capacity (kWh)
+                    Energy Consumption (kWh/km)
                   </label>
                   <input
                     type="number"
-                    value={batteryCapacity}
-                    onChange={(e) => setBatteryCapacity(e.target.value)}
+                    value={energyConsumption}
+                    onChange={(e) => setEnergyConsumption(e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                    placeholder="Enter battery capacity"
+                    placeholder="Enter energy consumption per km"
                   />
-                  {errors.batteryCapacity && (
+                  {errors.energyConsumption && (
                     <Alert variant="destructive" className="mt-2">
                       <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>{errors.batteryCapacity}</AlertDescription>
+                      <AlertDescription>{errors.energyConsumption}</AlertDescription>
                     </Alert>
                   )}
                 </div>
