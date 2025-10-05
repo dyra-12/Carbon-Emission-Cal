@@ -3,35 +3,42 @@ import React, { useState } from 'react';
 import { AlertCircle, Info, Car, Zap } from 'lucide-react';
 import { Alert, AlertDescription } from './ui/alert';
 
+type Errors = {
+  distance?: string;
+  energyConsumption?: string;
+  chargingEfficiency?: string;
+  fuelEfficiency?: string;
+};
+
 const EmissionsCalculator = () => {
-  const [vehicleType, setVehicleType] = useState('ev');
+  const [vehicleType, setVehicleType] = useState<'ev' | 'petrol'>('ev');
   const [distance, setDistance] = useState('');
   const [energyConsumption, setEnergyConsumption] = useState('');
   const [chargingEfficiency, setChargingEfficiency] = useState('');
   const [fuelEfficiency, setFuelEfficiency] = useState('');
-  const [result, setResult] = useState(null);
-  const [errors, setErrors] = useState({});
+  const [result, setResult] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Errors>({});
 
   const GRID_EMISSION_FACTOR = 0.5;
   const PETROL_EMISSION_FACTOR = 2.31;
 
   const validateInputs = () => {
-    const newErrors = {};
+    const newErrors: Errors = {};
     
-    if (!distance || isNaN(distance) || Number(distance) <= 0) {
+    if (!distance || isNaN(Number(distance)) || Number(distance) <= 0) {
       newErrors.distance = 'Please enter a valid distance';
     }
 
     if (vehicleType === 'ev') {
-      if (!energyConsumption || isNaN(energyConsumption) || Number(energyConsumption) <= 0) {
+      if (!energyConsumption || isNaN(Number(energyConsumption)) || Number(energyConsumption) <= 0) {
         newErrors.energyConsumption = 'Please enter a valid energy consumption';
       }
-      if (!chargingEfficiency || isNaN(chargingEfficiency) || 
+      if (!chargingEfficiency || isNaN(Number(chargingEfficiency)) || 
           Number(chargingEfficiency) <= 0 || Number(chargingEfficiency) > 100) {
         newErrors.chargingEfficiency = 'Efficiency must be between 0 and 100';
       }
     } else {
-      if (!fuelEfficiency || isNaN(fuelEfficiency) || Number(fuelEfficiency) <= 0) {
+      if (!fuelEfficiency || isNaN(Number(fuelEfficiency)) || Number(fuelEfficiency) <= 0) {
         newErrors.fuelEfficiency = 'Please enter a valid fuel efficiency';
       }
     }
